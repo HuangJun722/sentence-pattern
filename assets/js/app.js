@@ -165,7 +165,7 @@
     if (!el) return;
     if (el.dataset.say) {
       var x = Store.findSentence(el.dataset.say);
-      if (x) Media.speak(x.s.en, S.settings.rate);
+      if (x) Media.speak(x.s, S.settings.rate);
     }
     if (el.dataset.rec) {
       var id = el.dataset.rec;
@@ -209,7 +209,7 @@
       $('[data-w="show"]').onclick = function () {
         var box = $("#ans", train);
         box.innerHTML = sentenceBlock(x, true);
-        if (S.settings.autoSpeak) Media.speak(x.s.en, S.settings.rate);
+        if (S.settings.autoSpeak) Media.speak(x.s, S.settings.rate);
         $("#grade", train).innerHTML =
           '<div class="row" style="margin-top:12px"><button class="btn" data-g="smooth">顺</button>' +
           '<button class="btn" data-g="hard">卡</button><button class="btn" data-g="forget">忘</button></div>';
@@ -258,7 +258,7 @@
 
       $('[data-o="show"]').onclick = function () {
         $("#ans", train).innerHTML = sentenceBlock(x, true);
-        if (S.settings.autoSpeak) Media.speak(x.s.en, S.settings.rate);
+        if (S.settings.autoSpeak) Media.speak(x.s, S.settings.rate);
         $("#grade", train).innerHTML =
           '<div class="row" style="margin-top:12px"><button class="btn" data-g="smooth">顺</button>' +
           '<button class="btn" data-g="hard">卡</button><button class="btn" data-g="forget">忘</button></div>';
@@ -651,7 +651,7 @@
       save(); render(); toast("已存入句池");
     };
     $$("[data-say2]").forEach(function (b) {
-      b.onclick = function () { Media.speak(S.pool[parseInt(b.dataset.say2, 10)].en, S.settings.rate); };
+      b.onclick = function () { Media.speak(S.pool[parseInt(b.dataset.say2, 10)], S.settings.rate); };
     });
     $$("[data-pdel]").forEach(function (b) {
       b.onclick = function () { S.pool.splice(parseInt(b.dataset.pdel, 10), 1); save(); render(); };
@@ -715,7 +715,7 @@
 
       $('[data-r="show"]').onclick = function () {
         $("#ans", train).innerHTML = sentenceBlock(x, true);
-        if (S.settings.autoSpeak) Media.speak(x.s.en, S.settings.rate);
+        if (S.settings.autoSpeak) Media.speak(x.s, S.settings.rate);
         $("#grade", train).innerHTML =
           '<div class="row" style="margin-top:12px">' +
           '<button class="btn" data-g="1">忘了</button><button class="btn" data-g="2">卡</button>' +
@@ -786,10 +786,42 @@
     h += '<div class="stat"><span>句池待处理</span><b>' + S.pool.length + " 句</b></div>";
     h += "</div>";
 
+    var vlist = Media.listVoices();
+    var curVoice = S.settings.voiceURI || "";
+    var grade = Media.voiceGrade();
+    h += '<h2 class="section">发音</h2><div class="card">';
+    h += '<div class="stat"><span>内置音频（神经语音）</span><b>' +
+      (window.AUDIO ? window.AUDIO.length : 0) + " / " + all.length + " 句</b></div>";
+    if (vlist.length) {
+      var hasSel = false;
+      var vopts = vlist.map(function (x) {
+        var sel = x.v.voiceURI === curVoice;
+        if (sel) hasSel = true;
+        var tag = x.score >= 80 ? " ★推荐" : (x.score >= 55 ? "" : " · 音质一般");
+        return '<option value="' + esc(x.v.voiceURI) + '"' + (sel ? " selected" : "") + ">" +
+          esc(x.v.name) + " [" + x.v.lang + "]" + tag + "</option>";
+      }).join("");
+      h += "<label>本机语音（自己录入的句子用它朗读）</label>";
+      h += '<select data-voice="1">' +
+        (hasSel ? "" : '<option value="">（默认：' + esc(vlist[0].v.name) + "）</option>") + vopts + "</select>";
+      h += '<div class="row" style="margin-top:8px"><button class="btn sm" data-tryvoice="1">试听</button>' +
+        '<button class="btn sm" data-reloadvoice="1">重新检测</button></div>';
+    } else {
+      h += '<div class="muted">浏览器还没返回语音列表。点一下重新检测（部分浏览器需要几秒）。</div>';
+      h += '<div class="row" style="margin-top:8px"><button class="btn sm" data-reloadvoice="1">重新检测</button></div>';
+    }
+    h += '<label>朗读语速（0.6 慢 ~ 1.0 正常 ~ 1.5 快）</label><input type="number" step="0.1" data-set="rate" value="' + S.settings.rate + '">';
+    if (grade === "poor") {
+      h += '<div class="muted" style="margin-top:8px">⚠ 本机语音是老式系统语音，偏生硬。内置音频不受影响；用 <b>Edge</b> 打开还能拿到微软神经语音。</div>';
+    } else if (grade === "good") {
+      h += '<div class="muted" style="margin-top:8px">本机语音音质不错：' + esc(Media.voiceName()) + "</div>";
+    }
+    h += '<div class="muted" style="margin-top:8px">内置音频覆盖种子句子，断网也能放；你自己摘录/录入的句子用上面的本机语音朗读。</div>';
+    h += "</div>";
+
     h += '<h2 class="section">设置</h2><div class="card">';
     h += "<label>每日新句上限</label><input type=\"number\" data-set=\"dailyNew\" value=\"" + S.settings.dailyNew + '">';
     h += "<label>每日复习上限</label><input type=\"number\" data-set=\"dailyReview\" value=\"" + S.settings.dailyReview + '">';
-    h += "<label>朗读语速（0.6 慢 ~ 1.0 正常）</label><input type=\"number\" step=\"0.1\" data-set=\"rate\" value=\"" + S.settings.rate + '">';
     h += '<label><input type="checkbox" data-set="trainB" style="width:auto" ' + (S.settings.trainB ? "checked" : "") + "> 训练 B 类（轻微改编，内核仍是母语者原句）</label>";
     h += '<label><input type="checkbox" data-set="onlyA" style="width:auto" ' + (S.settings.onlyA ? "checked" : "") + "> 严格模式：只训练 A 类原句</label>";
     h += '<label><input type="checkbox" data-set="autoSpeak" style="width:auto" ' + (S.settings.autoSpeak ? "checked" : "") + "> 翻面时自动朗读</label>";
@@ -817,6 +849,16 @@
         save(); render();
       };
     });
+    var vs = $("[data-voice]");
+    if (vs) vs.onchange = function () {
+      S.settings.voiceURI = vs.value;
+      save();
+      if (vs.value) Media.preview(vs.value);
+    };
+    var tv = $("[data-tryvoice]");
+    if (tv) tv.onclick = function () { Media.preview(S.settings.voiceURI || (vs && vs.value)); };
+    var rv = $("[data-reloadvoice]");
+    if (rv) rv.onclick = function () { render(); };
     var ex = $("[data-export]");
     if (ex) ex.onclick = function () {
       var blob = new Blob([Store.toJSON()], { type: "application/json" });

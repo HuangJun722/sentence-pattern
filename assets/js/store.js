@@ -21,10 +21,11 @@
       settings: {
         dailyNew: 10,
         dailyReview: 80,
-        rate: 0.9,
+        rate: 1,
         autoSpeak: false,
         trainB: true,       // B 类（轻微改编）是否进入训练队列
-        onlyA: false        // 严格模式：只训练 A 类原句
+        onlyA: false,       // 严格模式：只训练 A 类原句
+        voiceURI: ""        // 手动指定的本机语音（留空 = 自动选最优）
       },
       log: [],        // {date, type, count, ms}
       transfer: [],   // {date, ok, from, to, ms}
