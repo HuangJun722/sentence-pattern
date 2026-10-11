@@ -6,14 +6,13 @@
 
 双击 `index.html` 即可（无需服务器、无需联网）。
 
-## 上线到 GitHub Pages（3 步）
+## 线上地址
 
-1. 在 GitHub 新建公开仓库（建议名字 `sentence-pattern`），把本目录下**所有文件和文件夹**上传：
-   - `index.html`
-   - `assets/`（含 css 与 js）
-   - `seed/`（原始语料留档，可选）
-2. 进入仓库 **Settings → Pages**，Source 选 `Deploy from a branch`，Branch 选 `main`，目录选 `/ (root)`，保存。
-3. 等约 1 分钟，访问 `https://<你的用户名>.github.io/sentence-pattern/` 即可。手机浏览器打开同一个网址也能用。
+**https://huangjun722.github.io/sentence-pattern/** —— 手机和电脑打开同一个网址即可。
+
+仓库：https://github.com/HuangJun722/sentence-pattern （公开，`main` 根目录，Pages 已开启）
+
+改完文件后更新线上：在 GitHub 网页端直接改，或把改动提交到 `main` 分支，Pages 会自动重新构建（约 1 分钟）。
 
 ## 重要：数据只存在浏览器里
 

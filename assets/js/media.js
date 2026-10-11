@@ -163,7 +163,7 @@
     var u = new SpeechSynthesisUtterance(text);
     var v = pickVoice();
     if (v) { u.voice = v; u.lang = v.lang; } else { u.lang = "en-US"; }
-    u.rate = clamp(rate, 0.5, 1.5);
+    u.rate = clamp(rate, 0.6, 1.5);
     u.pitch = 1;
     window.speechSynthesis.speak(u);
   }
@@ -180,7 +180,7 @@
       try {
         player.pause();
         player.src = "assets/audio/" + id + ".mp3";
-        player.playbackRate = clamp(rate, 0.5, 1.5);
+        player.playbackRate = clamp(rate, 0.6, 1.5);
         var p = player.play();
         if (p && p.catch) p.catch(function () { speakLocal(text, rate); });
         return;
